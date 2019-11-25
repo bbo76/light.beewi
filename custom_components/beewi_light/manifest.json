@@ -1,0 +1,8 @@
+{
+  "domain": "beewi_light",
+  "name": "Beewi Light",
+  "documentation": "https://github.com/home-assistant/example-custom-config/tree/master/custom_components/example_light/",
+  "dependencies": [],
+  "codeowners": [],
+  "requirements": ["bluepy"]
+}
