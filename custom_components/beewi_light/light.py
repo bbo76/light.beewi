@@ -137,6 +137,7 @@ class BeewiLight(Light):
             self._rgb = (255, 255, 255)
             self._brightness = brightness
             brightnessten = round((brightness / 2.55 ) / 10)
+
             if brightnessten < 2:
                 brightnessten = 2
 
@@ -186,24 +187,30 @@ class BeewiLight(Light):
 
     def update(self):
         _LOGGER.debug("Update()")
-        settings = self.get_settings()
-        bulbIsOn = (settings[0] % 2) == 1
-        bulbIsWhite = (settings[1] & 15) > 0
-        brightness = (((settings[1] & 240) >> 4) - 1)
-        if brightness < 2 :
-            brightness = 2
-        tone = (settings[1] & 15) - 2
-        if tone < 2 :
-            tone = 2
+        try:
+            settings = self.get_settings()
+            bulbIsOn = (settings[0] % 2) == 1
+            bulbIsWhite = (settings[1] & 15) > 0
+            brightness = (settings[1] & 240) >> 4
 
-        self._state = bulbIsOn
-        self._brightness = (brightness * 2.55) * 10
-        self._white = (tone * 2.55) * 10
-        rgb = (settings[2], settings[3], settings[4])
-        _LOGGER.debug(rgb)
-        hsv = color_util.color_RGB_to_hsv(*rgb)
-        self._hs_color = hsv[:2]
-    
+            if brightness < 2 :
+                brightness = 2
+
+            tone = (settings[1] & 15) - 2
+
+            if tone < 2 :
+                tone = 2
+
+            self._state = bulbIsOn
+            self._brightness = (brightness * 2.55) * 10
+            self._white = (tone * 2.55) * 10
+            rgb = (settings[2], settings[3], settings[4])
+            _LOGGER.debug(rgb)
+            hsv = color_util.color_RGB_to_hsv(*rgb)
+            self._hs_color = hsv[:2]
+        except Exception:
+            pass
+        
     def test_connection(self):
         """
         Test if the connection is still alive
