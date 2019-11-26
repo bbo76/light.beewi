@@ -209,7 +209,7 @@ class BeewiLight(Light):
             hsv = color_util.color_RGB_to_hsv(*rgb)
             self._hs_color = hsv[:2]
         except Exception:
-            pass
+            self._state = False
         
     def test_connection(self):
         """
