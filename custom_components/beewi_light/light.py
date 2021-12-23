@@ -41,7 +41,7 @@ class BeewiLight(LightEntity):
         self._address = device[CONF_ADDRESS]
         self._light = BeewiSmartLight(self._address)
         self.is_valid = True
-        self._rgb = None
+        self._rgbw = None
         self._brightness = None
         self._isOn = None
         self._isWhite = None
@@ -87,10 +87,10 @@ class BeewiLight(LightEntity):
                 self._light.setBrightness(brightness)
 
             if not rgbw == None:
-                if rgbw[0] == 255 and rgbw[1] == 255 and rgbw[2] == 255:
-                    """ Consider that we want the White mode and eventually set the light tone"""
-                    tone = rgbw[3]
+                tone = rgbw[3]
 
+                if (rgbw[0] == 255 and rgbw[1] == 255 and rgbw[2] == 255) or self._rgbw[3] != tone:
+                    """ Consider that we want the White mode and eventually set the light tone"""
                     if not self._isWhite:
                         self._light.setWhite()
                         self._isWhite = True
