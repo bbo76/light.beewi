@@ -43,7 +43,7 @@ class BeewiLight(LightEntity):
         self.is_valid = True
         self._rgb = None
         self._brightness = None
-        self._isOn = False
+        self._isOn = None
         self._isWhite = None
 
     @property
@@ -86,19 +86,20 @@ class BeewiLight(LightEntity):
             if not brightness == None:
                 self._light.setBrightness(brightness)
 
-            if rgbw[0] == 255 and rgbw[1] == 255 and rgbw[2] == 255:
-                """ Consider that we want the White mode and eventually set the light tone"""
-                tone = rgbw[3]
+            if not rgbw == None:
+                if rgbw[0] == 255 and rgbw[1] == 255 and rgbw[2] == 255:
+                    """ Consider that we want the White mode and eventually set the light tone"""
+                    tone = rgbw[3]
 
-                if not self._isWhite:
-                    self._light.setWhite()
-                    self._isWhite = True
-                
-                self._light.setWhiteWarm(tone)
-            else:
-                """ Consider we want color we focus the RGB and don't care about warm"""
-                self._light.setColor(rgbw[0], rgbw[1], rgbw[2])
-                self._isWhite = False       
+                    if not self._isWhite:
+                        self._light.setWhite()
+                        self._isWhite = True
+                    
+                    self._light.setWhiteWarm(tone)
+                else:
+                    """ Consider we want color we focus the RGB and don't care about warm"""
+                    self._light.setColor(rgbw[0], rgbw[1], rgbw[2])
+                    self._isWhite = False       
         except Exception as e:
             _LOGGER.error(e)
         
@@ -111,10 +112,12 @@ class BeewiLight(LightEntity):
 
     def update(self):
         try:
+            _LOGGER.debug("Trying get states")
             self._light.getSettings()
             self._isOn = self._light.isOn
             self._isWhite = self._light.isWhite
             self._brightness = self._light.brightness
             self._rgbw = (255, 255, 255,self._light.temperature) if self._isWhite else (self._light.red, self._light.green, self._light.blue, self._light.temperature)
         except:
-            self._isOn = False
+            _LOGGER.debug("set state to None we cannot get state (power off ?)")
+            self._isOn = None
