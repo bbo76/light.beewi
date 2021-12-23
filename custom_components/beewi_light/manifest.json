@@ -2,12 +2,8 @@
   "domain": "beewi_light",
   "name": "Beewi Light",
   "documentation": "https://github.com/bbo76/light.beewi",
-  "dependencies": [],
-  "codeowners": [],
-  "requirements": ["bluepy"],
-  "codeowners": [
-    "@bbo76"
-  ],
-  "version": "1.0.0",
+  "codeowners": ["@bbo76"],
+  "requirements": ["bulbeewipy==1.0.3"],
+  "version": "2.0.0",
   "iot_class": "local_polling"
 }
