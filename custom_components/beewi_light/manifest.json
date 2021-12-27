@@ -3,7 +3,7 @@
   "name": "Beewi Light",
   "documentation": "https://github.com/bbo76/light.beewi",
   "codeowners": ["@bbo76"],
-  "requirements": ["bulbeewipy==1.0.3"],
+  "requirements": ["bulbeewipy==1.0.4","tenacity"],
   "version": "2.0.0",
   "iot_class": "local_polling"
 }

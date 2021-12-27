@@ -15,6 +15,8 @@ import homeassistant.helpers.config_validation as cv
 import homeassistant.util.color as color_util
 
 from bulbeewipy  import BeewiSmartLight
+import tenacity
+
 _LOGGER = logging.getLogger(__name__)
 
 # Validation of the user's configuration
@@ -72,6 +74,7 @@ class BeewiLight(LightEntity):
     def is_on(self):
         return self._isOn
     
+    @tenacity.retry(stop=(tenacity.stop_after_delay(10) | tenacity.stop_after_attempt(5)))
     def turn_on(self, **kwargs):
         try:
             brightness = kwargs.get(ATTR_BRIGHTNESS)
@@ -103,6 +106,7 @@ class BeewiLight(LightEntity):
         except Exception as e:
             _LOGGER.error(e)
         
+    @tenacity.retry(stop=(tenacity.stop_after_delay(10) | tenacity.stop_after_attempt(5)))
     def turn_off(self, **kwargs):
         try:
             self._light.turnOff()
@@ -110,6 +114,7 @@ class BeewiLight(LightEntity):
         except Exception as e:
             _LOGGER.error(e)
 
+    @tenacity.retry(stop=(tenacity.stop_after_attempt(5)))
     def update(self):
         try:
             _LOGGER.debug("Trying get states")
