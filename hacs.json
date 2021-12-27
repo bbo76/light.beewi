@@ -1,4 +1,5 @@
 {
     "name": "Beewi SmartLight",
-    "render_readme": true
-  }
+    "content_in_root": false,
+    "render_readme": true,
+}

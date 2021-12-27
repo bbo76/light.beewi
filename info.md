@@ -18,4 +18,3 @@ light:
     name: Ampoule salon
     address: "XX:XX:XX:XX:XX:XX"
   ```
-
