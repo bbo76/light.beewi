@@ -1,5 +1,7 @@
 {
     "name": "Beewi SmartLight",
-    "content_in_root": false,
     "render_readme": true,
+    "domains": ["beewi_light", "light"],
+    "homeassistant": "0.109.0",
+    "iot_class": "Local Polling"
 }

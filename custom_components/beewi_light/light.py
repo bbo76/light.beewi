@@ -9,15 +9,19 @@ from homeassistant.components.light import (
     ATTR_RGBW_COLOR,
     COLOR_MODE_RGBW,
     LightEntity,
-    PLATFORM_SCHEMA
+    PLATFORM_SCHEMA,
+    ENTITY_ID_FORMAT
 )
+from homeassistant.helpers.entity import generate_entity_id
 import homeassistant.helpers.config_validation as cv
 import homeassistant.util.color as color_util
 
-from bulbeewipy  import BeewiSmartLight
+from .beewilight  import BeewiSmartLight
 import tenacity
 
 _LOGGER = logging.getLogger(__name__)
+
+DOMAIN = "beewi_light"
 
 # Validation of the user's configuration
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
@@ -28,25 +32,28 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the platform."""
-    lights = []
-    device = {}
-    device[CONF_NAME] = config[CONF_NAME]
-    device[CONF_ADDRESS] = config[CONF_ADDRESS]
-    light = BeewiLight(device)
-    lights.append(light)
-    add_entities(lights)
+    mac = config[CONF_ADDRESS]
+    name = config[CONF_NAME]
+
+    if discovery_info is not None:
+        _LOGGER.debug("Adding autodetected %s", discovery_info["hostname"])
+        name = DOMAIN
+    _LOGGER.debug(f"Adding light {name} with mac:{mac}")
+    add_entities([BeewiLight(name, mac)])
 
 class BeewiLight(LightEntity):
-    def __init__(self,device):
+    def __init__(self, name, mac):
         """Initialize"""
-        self._name = device[CONF_NAME]
-        self._address = device[CONF_ADDRESS]
+        self._name = name
+        self._address = mac
+        self.entity_id = generate_entity_id(ENTITY_ID_FORMAT, self._name, [])
         self._light = BeewiSmartLight(self._address)
         self.is_valid = True
         self._rgbw = None
         self._brightness = None
-        self._isOn = None
+        self._isOn = False
         self._isWhite = None
+        self._available = False
 
     @property
     def name(self):
@@ -69,6 +76,10 @@ class BeewiLight(LightEntity):
     def rgbw_color(self):
         """Return the RBG color value."""
         return self._rgbw
+        
+    @property
+    def available(self) -> bool:
+        return self._available
 
     @property
     def is_on(self):
@@ -79,8 +90,6 @@ class BeewiLight(LightEntity):
         try:
             brightness = kwargs.get(ATTR_BRIGHTNESS)
             rgbw =  kwargs.get(ATTR_RGBW_COLOR)
-            _LOGGER.debug("Brightness for turn_on : {}".format(brightness))
-            _LOGGER.debug("RGBW for turn_on : {}".format(rgbw))
     
             if not self._isOn:
                 self._light.turnOn()
@@ -102,27 +111,34 @@ class BeewiLight(LightEntity):
                 else:
                     """ Consider we want color we focus the RGB and don't care about warm"""
                     self._light.setColor(rgbw[0], rgbw[1], rgbw[2])
-                    self._isWhite = False       
-        except Exception as e:
-            _LOGGER.error(e)
+                    self._isWhite = False    
+            
+            self._available = True
+        except:
+            raise
         
     @tenacity.retry(stop=(tenacity.stop_after_delay(10) | tenacity.stop_after_attempt(5)))
     def turn_off(self, **kwargs):
         try:
             self._light.turnOff()
             self._isOn = False
-        except Exception as e:
-            _LOGGER.error(e)
+            self._available = True
+        except:
+            raise
 
-    @tenacity.retry(stop=(tenacity.stop_after_attempt(5)))
     def update(self):
         try:
-            _LOGGER.debug("Trying get states")
+            self.execute_update()
+        except:
+            raise
+        
+    def execute_update(self):
+        try:
             self._light.getSettings()
+            self._available = True
             self._isOn = self._light.isOn
             self._isWhite = self._light.isWhite
             self._brightness = self._light.brightness
             self._rgbw = (255, 255, 255,self._light.temperature) if self._isWhite else (self._light.red, self._light.green, self._light.blue, self._light.temperature)
         except:
-            _LOGGER.debug("set state to None we cannot get state (power off ?)")
-            self._isOn = None
+            self._available = False

@@ -1,0 +1,24 @@
+{
+    "config": {
+      "step": {
+        "user": {
+          "title": "Beewi Light",
+          "description": "Control a Beewi bluetooth bulb. Ensure no device is connected to the bulb to prevent connection errors."
+        },
+        "device": {
+          "title": "Beewi Light",
+          "description": "Enter a name for the device and the MAC address for the light.",
+          "data": {
+            "name": "Light Name",
+            "mac": "MAC address"
+          }
+        }
+      },
+      "error": {
+        "general_error": "There was an unknown error."
+      },
+      "abort": {
+        "already_configured": "This mac address is already registered."
+      }
+    }
+  }

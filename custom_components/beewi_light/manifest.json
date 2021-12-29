@@ -1,9 +1,11 @@
 {
   "domain": "beewi_light",
   "name": "Beewi Light",
+  "config_flow": true,
   "documentation": "https://github.com/bbo76/light.beewi",
+  "issue_tracker": "https://github.com/bbo76/light.beewi/issues",
   "codeowners": ["@bbo76"],
-  "requirements": ["bulbeewipy==1.0.4","tenacity"],
-  "version": "2.0.0",
+  "requirements": ["bluepy>=1.3.0","tenacity"],
+  "version": "2.1.0",
   "iot_class": "local_polling"
 }
