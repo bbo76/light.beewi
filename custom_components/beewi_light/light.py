@@ -41,6 +41,17 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     _LOGGER.debug(f"Adding light {name} with mac:{mac}")
     add_entities([BeewiLight(name, mac)])
 
+async def async_setup_entry(hass, config_entry, async_add_entities):
+    """Set up the platform from config_entry."""
+    _LOGGER.debug(
+        f"async_setup_entry:setting up the config entry {config_entry.title} "
+        f"with data:{config_entry.data}"
+    )
+    name = config_entry.data.get(CONF_NAME) or DOMAIN
+    mac = config_entry.data.get(CONF_ADDRESS)
+    entity = BeewiLight(name, mac)
+    async_add_entities([entity])
+
 class BeewiLight(LightEntity):
     def __init__(self, name, mac):
         """Initialize"""
